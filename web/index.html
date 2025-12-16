@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>🎮 Кликер Игра</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #eee;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #eee;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            margin: 10px 0;
+            font-size: 1.2rem;
+        }
+
+        .score {
+            color: #4ecca3;
+            font-weight: bold;
+            font-size: 1.8rem;
+        }
+
+        .clicks {
+            color: #eee;
+            font-size: 1rem;
+        }
+
+        .clicker-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .click-button {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            font-size: 3rem;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .click-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.6);
+        }
+
+        .click-button .emoji {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .click-button .text {
+            font-size: 1.5rem;
+        }
+
+        .upgrade-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .upgrade-button {
+            width: 100%;
+            padding: 20px;
+            background: #e94560;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.3);
+        }
+
+        .upgrade-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 8px rgba(233, 69, 96, 0.4);
+        }
+
+        .upgrade-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #666;
+        }
+
+        .upgrade-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 2rem;
+            animation: float-up 1s ease-out forwards;
+            z-index: 1000;
+        }
+
+        @keyframes float-up {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(0.5);
+            }
+        }
+
+        .install-prompt {
+            background: rgba(102, 126, 234, 0.2);
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .install-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.5rem;
+            }
+            .click-button {
+                width: 180px;
+                height: 180px;
+            }
+            .click-button .emoji {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🎮 КЛИКЕР ИГРА</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                Очки: <span class="score" id="score">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="clicks">Кликов: <span id="clicks">0</span></span>
+            </div>
+        </div>
+
+        <div class="clicker-area">
+            <button class="click-button" id="clickBtn">
+                <span class="emoji">👆</span>
+                <span class="text">КЛИК!</span>
+            </button>
+        </div>
+
+        <div class="upgrade-section">
+            <button class="upgrade-button" id="upgradeBtn">
+                <div class="upgrade-info">
+                    <div>🚀 Улучшить (<span id="upgradeCost">10</span> очков)</div>
+                    <div>Уровень: <span id="level">1</span> | +<span id="perClick">1</span> за клик</div>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let clickCount = 0;
+        let totalPoints = 0;
+        let pointsPerClick = 1;
+        let upgradeLevel = 1;
+        let upgradeCost = 10;
+
+        // DOM elements
+        const scoreEl = document.getElementById('score');
+        const clicksEl = document.getElementById('clicks');
+        const clickBtn = document.getElementById('clickBtn');
+        const upgradeBtn = document.getElementById('upgradeBtn');
+        const upgradeCostEl = document.getElementById('upgradeCost');
+        const levelEl = document.getElementById('level');
+        const perClickEl = document.getElementById('perClick');
+
+        // Load saved game
+        function loadGame() {
+            const saved = localStorage.getItem('clickerGame');
+            if (saved) {
+                const data = JSON.parse(saved);
+                clickCount = data.clickCount || 0;
+                totalPoints = data.totalPoints || 0;
+                pointsPerClick = data.pointsPerClick || 1;
+                upgradeLevel = data.upgradeLevel || 1;
+                upgradeCost = data.upgradeCost || 10;
+                updateDisplay();
+            }
+        }
+
+        // Save game
+        function saveGame() {
+            localStorage.setItem('clickerGame', JSON.stringify({
+                clickCount,
+                totalPoints,
+                pointsPerClick,
+                upgradeLevel,
+                upgradeCost
+            }));
+        }
+
+        // Create floating particle
+        function createParticle(x, y, text) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = text;
+            particle.style.left = x + 'px';
+            particle.style.top = y + 'px';
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 1000);
+        }
+
+        // Update display
+        function updateDisplay() {
+            scoreEl.textContent = totalPoints.toLocaleString();
+            clicksEl.textContent = clickCount.toLocaleString();
+            upgradeCostEl.textContent = upgradeCost.toLocaleString();
+            levelEl.textContent = upgradeLevel;
+            perClickEl.textContent = pointsPerClick;
+
+            upgradeBtn.disabled = totalPoints < upgradeCost;
+        }
+
+        // Click handler
+        clickBtn.addEventListener('click', (e) => {
+            clickCount++;
+            totalPoints += pointsPerClick;
+            
+            createParticle(
+                e.clientX - 10, 
+                e.clientY - 10, 
+                '+' + pointsPerClick
+            );
+            
+            updateDisplay();
+            saveGame();
+        });
+
+        // Upgrade handler
+        upgradeBtn.addEventListener('click', () => {
+            if (totalPoints >= upgradeCost) {
+                totalPoints -= upgradeCost;
+                upgradeLevel++;
+                pointsPerClick = upgradeLevel;
+                upgradeCost = Math.floor(upgradeCost * 1.5);
+                
+                updateDisplay();
+                saveGame();
+            }
+        });
+
+        // Initialize
+        loadGame();
+
+        // PWA support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Service worker registration would go here
+            });
+        }
+    </script>
+</body>
+</html>
